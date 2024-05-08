@@ -22,7 +22,7 @@ const Login = () => {
           ) : (
             "Login"
           )}
-          <span className=" text-blue-500 ">Mern📲ChatApp</span>
+          <span className=" text-blue-500 ">Chat 📲</span>
         </h1>
         <form onSubmit={handleSubmit}>
           <div>
