@@ -1,4 +1,5 @@
 import Message from "../models/message.model.js";
+import { getReceiverSocketId, io } from "../socket/socket.js";
 
 import Conversation from "./../models/conversation.model.js";
 export const sendMessage = async (req, res) => {
@@ -28,6 +29,16 @@ export const sendMessage = async (req, res) => {
     // instead doing both save here we are using promises.all this will run in parallel
 
     await Promise.all([conversation.save(), newMessage.save()]);
+    //SOCKET ID FUNCTIONALITY WILL GO HERE
+
+    const receiverSocketId = getReceiverSocketId(receiverId);
+
+    if (receiverSocketId) {
+      //io.to(socket_id).emit() used to send events to specific client
+
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
+
     res.status(201).json(newMessage);
     //console.log("message send", req.params.id);
   } catch (error) {
@@ -40,13 +51,13 @@ export const getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.params;
     const senderId = req.user._id;
-    const conversattion = await Conversation.findOne({
+    const conversation = await Conversation.findOne({
       participants: { $all: [senderId, userToChatId] },
     }).populate("messages");
-    res.status(200).json(conversattion.messages);
-    if (!conversattion) return res.status(200).json([]);
-    const messages = conversattion.messages;
-    res.status(200).json(messages);
+
+    if (!conversation) return res.status(200).json([]); // Check before sending response
+    const messages = conversation.messages;
+    res.status(200).json(messages); // Send response here
   } catch (error) {
     console.log("Error in Message controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });

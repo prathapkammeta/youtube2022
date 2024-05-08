@@ -2,8 +2,9 @@ import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import generateTokenAndSetCookie from "../utils/generateToken.js";
 
-export const singup = async (req, res) => {
+export const signup = async (req, res) => {
   try {
+    console.log(req.body); // Log the request body for debugging
     const { fullName, username, password, confirmPassword, gender } = req.body;
     if (password !== confirmPassword) {
       return res.status(400).json({ error: "Password do not match" });
